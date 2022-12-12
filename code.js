@@ -11,7 +11,6 @@ const mouse = {
 const images = {};
 const sounds = {};
 let paused = false;
-let mode = "";
 const objects = new Map();
 const defaultSettings = {
 	muted: false,
@@ -219,7 +218,7 @@ wrapClickEvent(onMenu);
 function onMenu() {
 	clear();
 	objects.set("background", new Drawable(() => {
-		context.fillStyle = "rgba(0, 0, 0, 0.5)";
+		context.fillStyle = "blue";
 		context.fillRect(0, 0, 1920, 1280);
 	}));
 	objects.set("title", new Drawable(() => {
@@ -233,7 +232,7 @@ function onMenu() {
 function onSettings() {
 	clear();
 	objects.set("background", new Drawable(() => {
-		context.fillStyle = "rgba(0, 0, 0, 0.5)";
+		context.fillStyle = "green";
 		context.fillRect(0, 0, 1920, 1280);
 	}));
 	objects.set("text", new Drawable(() => {
@@ -259,10 +258,10 @@ function onMain() {
 	window.addEventListener("keydown", onKeyDown);
 	window.addEventListener("keyup", onKeyUp);
 	objects.set("background", new Drawable(() => {
-		context.fillStyle = "rgba(0, 0, 0, 0.5)";
+		context.fillStyle = "red";
 		context.fillRect(0, 0, 1920, 1280);
 	}));
-	requestAnimationFrame(loop);
+	// requestAnimationFrame(loop);
 };
 function onPause(_, text) {
 	window.removeEventListener("keydown", onKeyDown);
@@ -274,7 +273,7 @@ function onPause(_, text) {
 		context.fillStyle = "white";
 		context.fontSize = 16;
 		context.textAlign = "center";
-		context.fillText("GAME OVER", 960, 400);
+		context.fillText("PAUSED", 960, 400);
 		context.fontSize = 8;
 		let textY = 540;
 		for (const line of text) {
