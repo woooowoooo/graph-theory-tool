@@ -131,14 +131,21 @@ class TextToggle extends TextButton {
 	}
 }
 class Slider extends Drawable {
+	static THICKNESS = 9; // Constant but not really
+	static HEIGHT = 36;
 	constructor (x, y, width, settingName, start, end, step = 1, intValues = true, callback) {
 		function draw() {
-			context.fillStyle = "hsl(30, 5%, 80%)";
-			context.fillRect(x - width / 2, y - 4, width, 8);
+			// Slider bar
+			context.fillStyle = "hsl(30, 10%, 80%)";
+			context.fillRect(x - width / 2, y - Slider.THICKNESS / 3, width, Slider.THICKNESS * 2 / 3);
+			// Tick marks
 			const divisions = (end - start) / step;
 			for (let i = 0; i <= divisions; i++) {
-				context.fillRect(x - width / 2 + i * width / divisions - 8, y - 16, 16, 32);
+				context.fillRect(x - width / 2 + i * width / divisions - Slider.THICKNESS / 2, y - Slider.HEIGHT / 3, Slider.THICKNESS, Slider.HEIGHT * 2 / 3);
 			}
+			// End ticks
+			context.fillRect(x - width / 2 - Slider.THICKNESS / 2, y - Slider.HEIGHT / 2, Slider.THICKNESS, Slider.HEIGHT);
+			context.fillRect(x + width / 2 - Slider.THICKNESS / 2, y - Slider.HEIGHT / 2, Slider.THICKNESS, Slider.HEIGHT);
 			context.fillStyle = "white";
 			const position = (settings[settingName] - start) / (end - start) * width + x - width / 2;
 			context.fillRect(position - 20, y - 32, 40, 64);
@@ -237,7 +244,7 @@ function onMain() {
 		context.fontSize = 20;
 		context.fillText("Graph Theory Tool", 960, 320);
 	}));
-	objects.set("settings", new TextButton(960, 840, "Settings", onSettings, 640));
+	objects.set("settings", new TextButton(1560, 1120, "Settings", onSettings, 640));
 	// requestAnimationFrame(loop);
 };
 function onSettings() {
