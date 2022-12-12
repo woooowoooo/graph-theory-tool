@@ -221,16 +221,7 @@ context.fillText("If this doesn't go away,", 960, 800);
 context.fillText("refresh the page.", 960, 960);
 await loadResources();
 console.log("Resources loaded.", images, sounds);
-// Prompt for user interaction so autoplay won't get blocked
-clear();
-context.fillStyle = "black";
-context.fillRect(0, 0, 1920, 1280);
-context.fillStyle = "white";
-context.fontSize = 8;
-context.fillText("Loading finished.", 960, 400);
-context.fillText("CLICK ANYWHERE", 960, 800);
-context.fillText("TO CONTINUE", 960, 960);
-wrapClickEvent(onMain);
+onMain();
 // State transitions
 function onMain() {
 	clear();
