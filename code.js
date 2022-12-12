@@ -37,17 +37,6 @@ Object.defineProperty(context, "fontSize", {
 		context.font = `${size * 10}px "Avenir Next", "Century Gothic", "URW Gothic", sans-serif`;
 	}
 });
-context.fillCircle = function (x, y, radius, color, stroke) {
-	context.fillStyle = color;
-	context.beginPath();
-	context.arc(x, y, radius, 0, 2 * Math.PI);
-	context.fill();
-	if (stroke != null) {
-		context.strokeStyle = stroke;
-		context.lineWidth = 12;
-		context.stroke();
-	}
-};
 function clear() {
 	context.clearRect(0, 0, 1920, 1280);
 	for (const object of Array.from(objects.values()).filter(object => object.clear != null)) {
@@ -208,18 +197,37 @@ class Slider extends Drawable {
 }
 // Graph theory time
 const vertices = [];
-class Vertex extends Drawable {
+// Done with https://css.land/lch
+const COLORS = [
+	"white",
+	"rgb(90.69%, 7.63%, 14.36%)", // lch(50%, 90, 35)
+	"rgb(94.33%, 48.8%, 0%)", // lch(65%, 90, 60)
+	"rgb(88.84%, 76.94%, 0%)", // lch(80%, 90, 90)
+	"rgb(20.91%, 83.23%, 17.82%)", // lch(75%, 90, 135)
+	"rgb(0%, 73.81%, 88.63%)", // lch(70%, 60, 225)
+	"rgb(19.55%, 36.7%, 98.71%)", // lch(45%, 90, 290)
+	"rgb(90.6%, 29.73%, 93.32%)" // lch(60%, 90, 325)
+];
+class Vertex { // Would extend Drawable if "this" could be used before "super"
 	constructor (x, y) {
-		const index = vertices.length + 1; // Can't use this before super, frustruatingly
-		function draw() {
-			context.fillCircle(x, y, 50, "white", "black");
+		this.center = {x, y};
+		this.index = vertices.length + 1;
+		this.selected = false;
+		this.color = 0;
+		const circle = new Path2D();
+		circle.arc(x, y, 50, 0, 2 * Math.PI);
+		this.hitbox = circle;
+		this.draw = function () {
+			context.fillStyle = COLORS[this.color];
+			context.fill(circle);
+			context.strokeStyle = this.selected ? "red" : "black";
+			context.lineWidth = 12;
+			context.stroke(circle);
 			context.fillStyle = "black";
 			context.fontSize = 6;
-			context.fillText(index, x, y + 20);
-		}
-		super(draw);
-		this.center = {x, y};
-		this.index = index;
+			context.fillText(this.index, x, y + 20);
+		};
+		this.draw();
 	}
 }
 listeners.push(["mousedown", e => {
