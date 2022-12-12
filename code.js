@@ -34,7 +34,7 @@ const settings = new Proxy(JSON.parse(localStorage.getItem("graphToolSettings"))
 // Helper functions
 Object.defineProperty(context, "fontSize", {
 	set: size => {
-		context.font = `${size * 10}px "Avenir Next", "Century Gothic", "URW Gothic", sans-serif`;
+		context.font = `${size * 10}px Charter, Cambria, serif`;
 	}
 });
 function clear() {
