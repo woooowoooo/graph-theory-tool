@@ -8,6 +8,7 @@ const mouse = {
 	x: 0,
 	y: 0
 };
+const heldKeys = new Set();
 const images = {};
 const sounds = {};
 let paused = false;
@@ -66,6 +67,21 @@ function wrapClickEvent(callback, condition = () => true) {
 	return fullCallback;
 }
 canvas.addEventListener("click", getMousePosition);
+function onKeyDown(e) {
+	if (!heldKeys.has(e.key)) { // Prevent held key spam
+		heldKeys.add(e.key);
+		handle(e);
+	}
+}
+function onKeyUp(e) {
+	heldKeys.delete(e.key);
+}
+function handle(key) {
+	if (key.key === "Escape") {
+		heldKeys.clear();
+		onMenu();
+	}
+}
 // Classes
 class Drawable {
 	constructor (draw) {
