@@ -37,6 +37,12 @@ Object.defineProperty(context, "fontSize", {
 		context.font = `${size * 10}px "Avenir Next", "Century Gothic", "URW Gothic", sans-serif`;
 	}
 });
+context.fillCircle = function (x, y, radius, color) {
+	context.fillStyle = color;
+	context.beginPath();
+	context.arc(x, y, radius, 0, 2 * Math.PI);
+	context.fill();
+};
 function clear() {
 	context.clearRect(0, 0, 1920, 1280);
 	for (const object of Array.from(objects.values()).filter(object => object.clear != null)) {
@@ -50,6 +56,7 @@ function render() {
 		object.draw();
 	}
 }
+// Event listener helpers
 function getMousePosition(event) {
 	const bounds = canvas.getBoundingClientRect();
 	mouse.x = (event.clientX - bounds.left) * 1920 / (bounds.right - bounds.left);
@@ -82,7 +89,7 @@ function handle(key) {
 		onSettings();
 	}
 }
-// Classes
+// UI Elements
 class Drawable {
 	constructor (draw) {
 		this.draw = draw;
@@ -194,6 +201,22 @@ class Slider extends Drawable {
 		canvas.removeEventListener("mouseup", this.onMouseUp);
 	}
 }
+// Graph theory time
+const vertices = [];
+class Vertex extends Drawable {
+	constructor (x, y) {
+		function draw() {
+			context.fillCircle(x, y, 50, "black");
+		}
+		super(draw);
+		this.center = {x, y};
+	}
+}
+canvas.addEventListener("mousedown", e => {
+	getMousePosition(e);
+	vertices.push(new Vertex(mouse.x, mouse.y));
+	render();
+});
 // Loading assets
 async function loadResources() {
 	const imageNames = ["buttonStart", "buttonMiddle", "buttonEnd"];
@@ -244,8 +267,12 @@ function onMain() {
 		context.fontSize = 20;
 		context.fillText("Graph Theory Tool", 960, 320);
 	}));
+	objects.set("vertices", new Drawable(() => {
+		for (const vertex of vertices) {
+			vertex.draw();
+		}
+	}));
 	objects.set("settings", new TextButton(1560, 1120, "Settings", onSettings, 640));
-	// requestAnimationFrame(loop);
 };
 function onSettings() {
 	window.removeEventListener("keydown", onKeyDown);
