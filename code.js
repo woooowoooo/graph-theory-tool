@@ -79,7 +79,7 @@ function onKeyUp(e) {
 function handle(key) {
 	if (key.key === "Escape") {
 		heldKeys.clear();
-		onMenu();
+		onSettings();
 	}
 }
 // Classes
@@ -90,18 +90,19 @@ class Drawable {
 	}
 }
 class Button extends Drawable {
-	constructor (hitbox, draw, callback, ignorePause = false) {
+	constructor (hitbox, draw, callback) {
 		super(draw);
 		this.callback = callback;
 		this.hitbox = hitbox;
-		this.fullCallback = wrapClickEvent(callback, () => context.isPointInPath(hitbox, mouse.x, mouse.y) && (!paused || ignorePause));
+		this.state = paused;
+		this.fullCallback = wrapClickEvent(callback, () => context.isPointInPath(hitbox, mouse.x, mouse.y) && (paused === this.state));
 	}
 	clear() {
 		canvas.removeEventListener("click", this.fullCallback);
 	}
 }
 class TextButton extends Button {
-	constructor (x, y, text, callback, width, ignorePause = false) {
+	constructor (x, y, text, callback, width) {
 		const buttonWidth = width ? width - 160 : Math.ceil(context.measureText(text).width / 32) * 32;
 		const hitbox = new Path2D();
 		hitbox.rect(x - buttonWidth / 2 - 64, y, buttonWidth + 128, 128);
@@ -116,7 +117,7 @@ class TextButton extends Button {
 			context.fillStyle = "black";
 			context.fillText(text, x, y + 92);
 		}
-		super(hitbox, draw, callback, ignorePause);
+		super(hitbox, draw, callback);
 	}
 }
 class TextToggle extends TextButton {
@@ -229,12 +230,15 @@ context.fontSize = 8;
 context.fillText("Loading finished.", 960, 400);
 context.fillText("CLICK ANYWHERE", 960, 800);
 context.fillText("TO CONTINUE", 960, 960);
-wrapClickEvent(onMenu);
+wrapClickEvent(onMain);
 // State transitions
-function onMenu() {
+function onMain() {
 	clear();
+	window.addEventListener("keydown", onKeyDown);
+	window.addEventListener("keyup", onKeyUp);
+	paused = false;
 	objects.set("background", new Drawable(() => {
-		context.fillStyle = "blue";
+		context.fillStyle = "red";
 		context.fillRect(0, 0, 1920, 1280);
 	}));
 	objects.set("title", new Drawable(() => {
@@ -242,13 +246,15 @@ function onMenu() {
 		context.fontSize = 20;
 		context.fillText("Graph Theory Tool", 960, 320);
 	}));
-	objects.set("start", new TextButton(960, 520, "Start", onMain, 640));
 	objects.set("settings", new TextButton(960, 840, "Settings", onSettings, 640));
+	// requestAnimationFrame(loop);
 };
 function onSettings() {
-	clear();
-	objects.set("background", new Drawable(() => {
-		context.fillStyle = "green";
+	window.removeEventListener("keydown", onKeyDown);
+	window.removeEventListener("keyup", onKeyUp);
+	paused = true;
+	objects.set("overlay", new Drawable(() => {
+		context.fillStyle = "rgba(0, 0, 0, 0.5)";
 		context.fillRect(0, 0, 1920, 1280);
 	}));
 	objects.set("text", new Drawable(() => {
@@ -267,38 +273,5 @@ function onSettings() {
 			sound.volume = settings.volume / 100;
 		}
 	}));
-	objects.set("return", new TextButton(960, 1000, "Return", onMenu, 640));
-};
-function onMain() {
-	clear();
-	window.addEventListener("keydown", onKeyDown);
-	window.addEventListener("keyup", onKeyUp);
-	objects.set("background", new Drawable(() => {
-		context.fillStyle = "red";
-		context.fillRect(0, 0, 1920, 1280);
-	}));
-	// requestAnimationFrame(loop);
-};
-function onPause(_, text) {
-	window.removeEventListener("keydown", onKeyDown);
-	window.removeEventListener("keyup", onKeyUp);
-	paused = true;
-	objects.set("endScreen", new Drawable(() => {
-		context.fillStyle = "rgba(0, 0, 0, 0.5)";
-		context.fillRect(0, 0, 1920, 1280);
-		context.fillStyle = "white";
-		context.fontSize = 16;
-		context.textAlign = "center";
-		context.fillText("PAUSED", 960, 400);
-		context.fontSize = 8;
-		let textY = 540;
-		for (const line of text) {
-			context.fillText(line, 960, textY);
-			textY += 100;
-		}
-	}));
-	objects.set("menu", new TextButton(672, 920, "Menu", onMenu, 480, true));
-};
-function onUnPause() {
-	paused = false;
+	objects.set("return", new TextButton(960, 1000, "Return", onMain, 640));
 };
