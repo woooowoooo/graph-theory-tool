@@ -7,7 +7,7 @@
 	--secondary-color: hsl(30, 5%, 15%);
 	--text-color: hsl(30, 5%, 15%);
 	--accent-color: orangered;
-	--font-stack: Avenir, Futura, "Century Gothic", "URW Gothic", sans-serif;
+	--font-stack: "Avenir Next", "Century Gothic", "URW Gothic", sans-serif;
 }
 body {
 	display: flex;
@@ -38,11 +38,6 @@ a {
 }
 p {
 	margin: 0.5em 0;
-}
-@font-face {
-	font-family: "Commodore 64";
-	src: url("fonts/commodore64.woff2") format("woff2"),
-	url("fonts/commodore64.woff") format("woff");
 }
 @media (prefers-color-scheme: dark) {
 	:root {
