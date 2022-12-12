@@ -37,11 +37,16 @@ Object.defineProperty(context, "fontSize", {
 		context.font = `${size * 10}px "Avenir Next", "Century Gothic", "URW Gothic", sans-serif`;
 	}
 });
-context.fillCircle = function (x, y, radius, color) {
+context.fillCircle = function (x, y, radius, color, stroke) {
 	context.fillStyle = color;
 	context.beginPath();
 	context.arc(x, y, radius, 0, 2 * Math.PI);
 	context.fill();
+	if (stroke != null) {
+		context.strokeStyle = stroke;
+		context.lineWidth = 12;
+		context.stroke();
+	}
 };
 function clear() {
 	context.clearRect(0, 0, 1920, 1280);
@@ -205,11 +210,16 @@ class Slider extends Drawable {
 const vertices = [];
 class Vertex extends Drawable {
 	constructor (x, y) {
+		const index = vertices.length + 1; // Can't use this before super, frustruatingly
 		function draw() {
-			context.fillCircle(x, y, 50, "black");
+			context.fillCircle(x, y, 50, "white", "black");
+			context.fillStyle = "black";
+			context.fontSize = 6;
+			context.fillText(index, x, y + 20);
 		}
 		super(draw);
 		this.center = {x, y};
+		this.index = index;
 	}
 }
 canvas.addEventListener("mousedown", e => {
