@@ -236,11 +236,11 @@ function onMain() {
 	window.addEventListener("keyup", onKeyUp);
 	paused = false;
 	objects.set("background", new Drawable(() => {
-		context.fillStyle = "red";
+		context.fillStyle = "hsl(30, 10%, 80%)";
 		context.fillRect(0, 0, 1920, 1280);
 	}));
 	objects.set("title", new Drawable(() => {
-		context.fillStyle = "white";
+		context.fillStyle = "black";
 		context.fontSize = 20;
 		context.fillText("Graph Theory Tool", 960, 320);
 	}));
