@@ -1,4 +1,4 @@
-const canvas = document.getElementsByTag("canvas")[0];
+const canvas = document.getElementsByTagName("canvas")[0];
 canvas.width = 1920;
 canvas.height = 1280;
 const context = canvas.getContext("2d");
