@@ -15,11 +15,10 @@ let paused = false;
 const objects = new Map();
 const listeners = [];
 const defaultSettings = {
-	muted: false,
 	volume: 100,
 	grid: false,
-	arr: 2,
-	das: 10
+	place1: 2,
+	place2: 10
 };
 const settings = new Proxy(JSON.parse(localStorage.getItem("graphToolSettings")) ?? defaultSettings, {
 	get: function (_, property) {
@@ -299,13 +298,13 @@ function onSettings() {
 		context.fillStyle = "white";
 		context.textAlign = "right";
 		context.fillText("Grid:", 600, 280 - 20 + 28);
-		context.fillText("ARR:", 600, 440 + 28);
-		context.fillText("DAS:", 600, 600 + 28);
+		context.fillText("Placeholder 1:", 600, 440 + 28);
+		context.fillText("Placeholder 2:", 600, 600 + 28);
 		context.fillText("Volume:", 600, 760 + 28);
 	}));
 	objects.set("grid", new TextToggle(1200, 280 - 20 + 28 - 92, "grid"));
-	objects.set("arr", new Slider(1200, 440, 960, "arr", 0, 5));
-	objects.set("das", new Slider(1200, 600, 960, "das", 0, 20));
+	objects.set("place1", new Slider(1200, 440, 960, "place1", 0, 5));
+	objects.set("place2", new Slider(1200, 600, 960, "place2", 0, 20));
 	objects.set("volume", new Slider(1200, 760, 960, "volume", 0, 100, 10, false, () => {
 		for (const sound of Object.values(sounds)) {
 			sound.volume = settings.volume / 100;
