@@ -85,27 +85,6 @@ class Button extends Drawable {
 		canvas.removeEventListener("click", this.fullCallback);
 	}
 }
-class MuteButton extends Button {
-	constructor () {
-		const [X, Y, DX, DY] = [1920 - 96, 1280 - 96, 96, 96];
-		const hitbox = new Path2D();
-		hitbox.rect(X, Y, DX, DY);
-		hitbox.closePath();
-		function draw() {
-			context.drawImage(images[settings.muted ? "soundOff" : "soundOn"], X, Y, DX, DY);
-		}
-		function callback() {
-			settings.muted = !settings.muted;
-			console.log(settings.muted ? "Muted" : "Unmuted");
-			for (const sound of Object.values(sounds)) {
-				sound.muted = settings.muted;
-			}
-			objects.set("mute", new MuteButton());
-			render();
-		}
-		super(hitbox, draw, callback);
-	}
-}
 class TextButton extends Button {
 	constructor (x, y, text, callback, width, ignorePause = false) {
 		const buttonWidth = width ? width - 160 : Math.ceil(context.measureText(text).width / 32) * 32;
@@ -194,8 +173,8 @@ class Slider extends Drawable {
 }
 // Loading assets
 async function loadResources() {
-	const imageNames = ["background", "buttonStart", "buttonMiddle", "buttonEnd", "soundOn", "soundOff"];
-	const soundNames = ["mainTheme"];
+	const imageNames = ["buttonStart", "buttonMiddle", "buttonEnd"];
+	const soundNames = [];
 	const promises = [];
 	const initialize = function (cache, id, path, type, eventType) {
 		cache[id] = document.createElement(type);
@@ -239,22 +218,24 @@ wrapClickEvent(onMenu);
 // State transitions
 function onMenu() {
 	clear();
-	sounds.mainTheme.play();
-	objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
+	objects.set("background", new Drawable(() => {
+		context.fillStyle = "rgba(0, 0, 0, 0.5)";
+		context.fillRect(0, 0, 1920, 1280);
+	}));
 	objects.set("title", new Drawable(() => {
 		context.fillStyle = "white";
 		context.fontSize = 20;
-		context.fillText("wooootris", 960, 320);
+		context.fillText("Graph Theory Tool", 960, 320);
 	}));
-	objects.set("start", new TextButton(960, 520, "Start", () => stateMachine.start("default"), 640));
-	objects.set("fortyLines", new TextButton(960, 680, "40 Lines", () => stateMachine.start("fortyLines"), 640));
-	objects.set("settings", new TextButton(960, 840, "Settings", stateMachine.toSettings, 640));
-	objects.set("credits", new TextButton(960, 1000, "Credits", stateMachine.toCredits, 640));
-	objects.set("mute", new MuteButton());
+	objects.set("start", new TextButton(960, 520, "Start", onMain, 640));
+	objects.set("settings", new TextButton(960, 840, "Settings", onSettings, 640));
 };
 function onSettings() {
 	clear();
-	objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
+	objects.set("background", new Drawable(() => {
+		context.fillStyle = "rgba(0, 0, 0, 0.5)";
+		context.fillRect(0, 0, 1920, 1280);
+	}));
 	objects.set("text", new Drawable(() => {
 		context.fillStyle = "white";
 		context.textAlign = "right";
@@ -271,41 +252,22 @@ function onSettings() {
 			sound.volume = settings.volume / 100;
 		}
 	}));
-	objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
-	objects.set("mute", new MuteButton());
+	objects.set("return", new TextButton(960, 1000, "Return", onMenu, 640));
 };
-function onCredits() {
+function onMain() {
 	clear();
-	objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
-	objects.set("credits", new Drawable(() => {
-		context.fillStyle = "white";
-		context.fontSize = 8;
-		context.fillText("Everything", 960, 360);
-		context.fillText("woooowoooo", 960, 440);
-		context.fillText("Inspiration and testing", 960, 640);
-		context.fillText("yayuuuhhhh", 960, 720);
-	}));
-	objects.set("return", new TextButton(960, 1000, "Return", stateMachine.toMenu, 640));
-	objects.set("mute", new MuteButton());
-};
-function onMain(_, newMode = mode) {
-	mode = newMode;
-	clear();
-	newGame(mode, settings);
 	window.addEventListener("keydown", onKeyDown);
 	window.addEventListener("keyup", onKeyUp);
-	objects.set("background", new Drawable(() => context.drawImage(images.background, 0, 0, 1920, 1280)));
-	objects.set("mute", new MuteButton());
-	objects.set("tetris", new Drawable(() => tetrisRender(context)));
+	objects.set("background", new Drawable(() => {
+		context.fillStyle = "rgba(0, 0, 0, 0.5)";
+		context.fillRect(0, 0, 1920, 1280);
+	}));
 	requestAnimationFrame(loop);
 };
-function onGameOver(_, text) {
+function onPause(_, text) {
 	window.removeEventListener("keydown", onKeyDown);
 	window.removeEventListener("keyup", onKeyUp);
 	paused = true;
-	for (const sound of Object.values(sounds).filter(sound => !sound.paused)) {
-		sound.pause();
-	}
 	objects.set("endScreen", new Drawable(() => {
 		context.fillStyle = "rgba(0, 0, 0, 0.5)";
 		context.fillRect(0, 0, 1920, 1280);
@@ -320,12 +282,8 @@ function onGameOver(_, text) {
 			textY += 100;
 		}
 	}));
-	objects.set("menu", new TextButton(672, 920, "Menu", stateMachine.toMenu, 480, true));
-	objects.set("retry", new TextButton(1248, 920, "Retry", stateMachine.retry, 480, true));
+	objects.set("menu", new TextButton(672, 920, "Menu", onMenu, 480, true));
 };
-function onLeaveGameOver() {
+function onUnPause() {
 	paused = false;
-	for (const sound of Object.values(sounds).filter(sound => sound.paused)) {
-		sound.play();
-	}
 };
