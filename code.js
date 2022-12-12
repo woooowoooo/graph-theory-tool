@@ -50,7 +50,7 @@ function render() {
 		object.draw();
 	}
 }
-// Event listener helpers
+// Mouse events
 function getMousePosition(event) {
 	const bounds = canvas.getBoundingClientRect();
 	mouse.x = (event.clientX - bounds.left) * 1920 / (bounds.right - bounds.left);
@@ -68,6 +68,26 @@ function wrapClickEvent(callback, condition = () => true) {
 	return fullCallback;
 }
 canvas.addEventListener("click", getMousePosition);
+listeners.push(["mousedown", e => {
+	getMousePosition(e);
+	if (e.button === 0) {
+		let onVertex = false;
+		for (const vertex of vertices) {
+			if (context.isPointInPath(vertex.hitbox, mouse.x, mouse.y)) {
+				vertex.selected = !vertex.selected;
+				onVertex = true;
+			}
+		}
+		if (!onVertex) {
+			vertices.push(new Vertex(mouse.x, mouse.y));
+		}
+	} else if (e.button === 2) {
+		// TODO
+	}
+	render();
+}]);
+// Keyboard events
+let input = "";
 listeners.push(["keydown", e => {
 	if (!heldKeys.has(e.key)) { // Prevent held key spam
 		heldKeys.add(e.key);
@@ -81,7 +101,15 @@ function handle(key) {
 	if (key.key === "Escape") {
 		heldKeys.clear();
 		onSettings();
+	} else if (key.key.match(/^[0-9+-]$/)) {
+		input += key.key;
+	} else if (key.key === "Enter") {
+		if (input !== "") {
+			// TODO
+		}
+		input = "";
 	}
+	render();
 }
 // UI Elements
 class Drawable {
@@ -197,6 +225,7 @@ class Slider extends Drawable {
 }
 // Graph theory time
 const vertices = [];
+const edges = [];
 // Done with https://css.land/lch
 const COLORS = [
 	"white",
@@ -232,24 +261,6 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 		this.draw();
 	}
 }
-listeners.push(["mousedown", e => {
-	getMousePosition(e);
-	if (e.button === 0) {
-		let onVertex = false;
-		for (const vertex of vertices) {
-			if (context.isPointInPath(vertex.hitbox, mouse.x, mouse.y)) {
-				vertex.selected = !vertex.selected;
-				onVertex = true;
-			}
-		}
-		if (!onVertex) {
-			vertices.push(new Vertex(mouse.x, mouse.y));
-		}
-	} else if (e.button === 2) {
-		// TODO
-	}
-	render();
-}]);
 // Loading assets
 async function loadResources() {
 	const imageNames = ["buttonStart", "buttonMiddle", "buttonEnd"];
@@ -289,17 +300,20 @@ onMain();
 function onMain() {
 	clear();
 	for (let listener of listeners) {
-		canvas.addEventListener(listener[0], listener[1]);
+		let target = listener[0].includes("key") ? window : canvas;
+		target.addEventListener(listener[0], listener[1]);
 	}
 	paused = false;
 	objects.set("background", new Drawable(() => {
 		context.fillStyle = "hsl(30, 10%, 80%)";
 		context.fillRect(0, 0, 1920, 1280);
 	}));
-	objects.set("title", new Drawable(() => {
+	objects.set("input", new Drawable(() => {
 		context.fillStyle = "black";
-		context.fontSize = 20;
-		context.fillText("Graph Theory Tool", 960, 320);
+		context.fontSize = 8;
+		context.textAlign = "left";
+		context.fillText(input, 40, 1240);
+		context.textAlign = "center";
 	}));
 	objects.set("vertices", new Drawable(() => {
 		for (const vertex of vertices) {
