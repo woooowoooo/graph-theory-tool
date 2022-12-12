@@ -16,7 +16,7 @@ const objects = new Map();
 const listeners = [];
 const defaultSettings = {
 	volume: 100,
-	grid: false,
+	labels: true,
 	place1: 2,
 	place2: 10
 };
@@ -224,8 +224,10 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 			context.lineWidth = 12;
 			context.stroke(circle);
 			context.fillStyle = "black";
-			context.fontSize = 6;
-			context.fillText(this.index, x, y + 20);
+			if (settings.labels) {
+				context.fontSize = 6;
+				context.fillText(this.index, x, y + 20);
+			}
 		};
 		this.draw();
 	}
@@ -304,7 +306,7 @@ function onMain() {
 			vertex.draw();
 		}
 	}));
-	objects.set("settings", new TextButton(1560, 1120, "Settings", onSettings, 640));
+	objects.set("settings", new TextButton(1640, 1120, "Settings", onSettings, 480));
 };
 function onSettings() {
 	for (let listener of listeners) {
@@ -318,12 +320,12 @@ function onSettings() {
 	objects.set("text", new Drawable(() => {
 		context.fillStyle = "white";
 		context.textAlign = "right";
-		context.fillText("Grid:", 600, 280 - 20 + 28);
+		context.fillText("Labels:", 600, 280 - 20 + 28);
 		context.fillText("Placeholder 1:", 600, 440 + 28);
 		context.fillText("Placeholder 2:", 600, 600 + 28);
 		context.fillText("Volume:", 600, 760 + 28);
 	}));
-	objects.set("grid", new TextToggle(1200, 280 - 20 + 28 - 92, "grid"));
+	objects.set("labels", new TextToggle(1200, 280 - 20 + 28 - 92, "labels"));
 	objects.set("place1", new Slider(1200, 440, 960, "place1", 0, 5));
 	objects.set("place2", new Slider(1200, 600, 960, "place2", 0, 20));
 	objects.set("volume", new Slider(1200, 760, 960, "volume", 0, 100, 10, false, () => {
