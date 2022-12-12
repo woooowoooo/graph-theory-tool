@@ -13,6 +13,7 @@ const images = {};
 const sounds = {};
 let paused = false;
 const objects = new Map();
+const listeners = [];
 const defaultSettings = {
 	muted: false,
 	volume: 100,
@@ -79,15 +80,15 @@ function wrapClickEvent(callback, condition = () => true) {
 	return fullCallback;
 }
 canvas.addEventListener("click", getMousePosition);
-function onKeyDown(e) {
+listeners.push(["keydown", e => {
 	if (!heldKeys.has(e.key)) { // Prevent held key spam
 		heldKeys.add(e.key);
 		handle(e);
 	}
-}
-function onKeyUp(e) {
+}]);
+listeners.push(["keyup", e => {
 	heldKeys.delete(e.key);
-}
+}]);
 function handle(key) {
 	if (key.key === "Escape") {
 		heldKeys.clear();
@@ -222,11 +223,11 @@ class Vertex extends Drawable {
 		this.index = index;
 	}
 }
-canvas.addEventListener("mousedown", e => {
+listeners.push(["mousedown", e => {
 	getMousePosition(e);
 	vertices.push(new Vertex(mouse.x, mouse.y));
 	render();
-});
+}]);
 // Loading assets
 async function loadResources() {
 	const imageNames = ["buttonStart", "buttonMiddle", "buttonEnd"];
@@ -265,8 +266,9 @@ onMain();
 // State transitions
 function onMain() {
 	clear();
-	window.addEventListener("keydown", onKeyDown);
-	window.addEventListener("keyup", onKeyUp);
+	for (let listener of listeners) {
+		canvas.addEventListener(listener[0], listener[1]);
+	}
 	paused = false;
 	objects.set("background", new Drawable(() => {
 		context.fillStyle = "hsl(30, 10%, 80%)";
@@ -285,8 +287,9 @@ function onMain() {
 	objects.set("settings", new TextButton(1560, 1120, "Settings", onSettings, 640));
 };
 function onSettings() {
-	window.removeEventListener("keydown", onKeyDown);
-	window.removeEventListener("keyup", onKeyUp);
+	for (let listener of listeners) {
+		canvas.removeEventListener(listener[0], listener[1]);
+	}
 	paused = true;
 	objects.set("overlay", new Drawable(() => {
 		context.fillStyle = "rgba(0, 0, 0, 0.5)";
