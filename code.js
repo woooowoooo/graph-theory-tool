@@ -232,7 +232,20 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 }
 listeners.push(["mousedown", e => {
 	getMousePosition(e);
-	vertices.push(new Vertex(mouse.x, mouse.y));
+	if (e.button === 0) {
+		let onVertex = false;
+		for (const vertex of vertices) {
+			if (context.isPointInPath(vertex.hitbox, mouse.x, mouse.y)) {
+				vertex.selected = !vertex.selected;
+				onVertex = true;
+			}
+		}
+		if (!onVertex) {
+			vertices.push(new Vertex(mouse.x, mouse.y));
+		}
+	} else if (e.button === 2) {
+		// TODO
+	}
 	render();
 }]);
 // Loading assets
