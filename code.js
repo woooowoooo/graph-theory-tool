@@ -338,8 +338,12 @@ class Edge {
 		this.selected = false;
 		this.color = 0;
 		const line = new Path2D();
-		line.moveTo(vertex1.center.x, vertex1.center.y);
-		line.lineTo(vertex2.center.x, vertex2.center.y);
+		if (vertex1 !== vertex2) {
+			line.moveTo(vertex1.center.x, vertex1.center.y);
+			line.lineTo(vertex2.center.x, vertex2.center.y);
+		} else {
+			line.arc(vertex1.center.x, vertex1.center.y - 75, 75, 0, 2 * Math.PI);
+		}
 		this.hitbox = line;
 		this.draw = function () {
 			context.strokeStyle = this.selected ? "red" : COLORS[this.color];
