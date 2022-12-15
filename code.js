@@ -237,7 +237,7 @@ const vertices = [];
 const edges = [];
 // Done with https://css.land/lch
 const COLORS = [
-	"white",
+	"black",
 	"rgb(90.69%, 7.63%, 14.36%)", // lch(50%, 90, 35)
 	"rgb(94.33%, 48.8%, 0%)", // lch(65%, 90, 60)
 	"rgb(88.84%, 76.94%, 0%)", // lch(80%, 90, 90)
@@ -256,9 +256,9 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 		circle.arc(x, y, 50, 0, 2 * Math.PI);
 		this.hitbox = circle;
 		this.draw = function () {
-			context.fillStyle = COLORS[this.color];
+			context.fillStyle = this.selected ? "red" : "white";
 			context.fill(circle);
-			context.strokeStyle = this.selected ? "red" : "black";
+			context.strokeStyle = COLORS[this.color];
 			context.lineWidth = 12;
 			context.stroke(circle);
 			context.fillStyle = "black";
