@@ -12,11 +12,23 @@ const sounds = {};
 let paused = false;
 const objects = new Map();
 const listeners = [];
+// Dark mode
+let darkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+let fillColor = darkMode ? "hsl(30, 10%, 5%)" : "white";
+let strokeColor = darkMode ? "linen" : "black";
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e => {
+	darkMode = e.matches;
+	fillColor = darkMode ? "hsl(30, 10%, 5%)" : "white";
+	strokeColor = darkMode ? "linen" : "black";
+	COLORS[0] = strokeColor;
+	render();
+});
+// Settings
 const defaultSettings = {
 	volume: 100,
 	labels: true,
 	place1: 2,
-	thickness: 12
+	thickness: darkMode ? 8 : 12
 };
 const settings = new Proxy(JSON.parse(localStorage.getItem("graphToolSettings")) ?? defaultSettings, {
 	get: function (_, property) {
@@ -162,13 +174,13 @@ class TextButton extends Button {
 		hitbox.arc(x + middleWidth / 2, y, 64, Math.PI * 3 / 2, Math.PI / 2);
 		hitbox.closePath();
 		function draw() {
-			context.fillStyle = "white";
+			context.fillStyle = fillColor;
 			context.fill(hitbox);
-			context.strokeStyle = "black";
-			context.lineWidth = 16;
+			context.strokeStyle = strokeColor;
+			context.lineWidth = settings.thickness * 1.2;
 			context.stroke(hitbox);
 			context.fontSize = 8;
-			context.fillStyle = "black";
+			context.fillStyle = strokeColor;
 			context.fillText(text, x, y + 28);
 		}
 		super(hitbox, draw, callback);
@@ -254,7 +266,7 @@ const vertices = [];
 const edges = [];
 // Done with https://css.land/lch
 const COLORS = [
-	"black",
+	strokeColor,
 	"rgb(90.69%, 7.63%, 14.36%)", // lch(50%, 90, 35)
 	"rgb(94.33%, 48.8%, 0%)", // lch(65%, 90, 60)
 	"rgb(88.84%, 76.94%, 0%)", // lch(80%, 90, 90)
@@ -266,19 +278,19 @@ const COLORS = [
 class Vertex { // Would extend Drawable if "this" could be used before "super"
 	constructor (x, y) {
 		this.center = {x, y};
-		this.index = vertices.length + 1;
+		this.index = vertices.length + 1; // TODO: Make this work with deletion
 		this.selected = false;
 		this.color = 0;
 		const circle = new Path2D();
 		circle.arc(x, y, 50, 0, 2 * Math.PI);
 		this.hitbox = circle;
 		this.draw = function () {
-			context.fillStyle = this.selected ? "red" : "white";
+			context.fillStyle = this.selected ? "red" : fillColor;
 			context.fill(circle);
 			context.strokeStyle = COLORS[this.color];
 			context.lineWidth = settings.thickness;
 			context.stroke(circle);
-			context.fillStyle = "black";
+			context.fillStyle = strokeColor;
 			if (settings.labels) {
 				context.fontSize = 6;
 				context.fillText(this.index, x, y + 20);
@@ -353,11 +365,11 @@ function onMain() {
 	}
 	paused = false;
 	objects.set("background", new Drawable(() => {
-		context.fillStyle = "hsl(30, 10%, 80%)";
+		context.fillStyle = darkMode ? "hsl(30, 10%, 15%)" : "hsl(30, 10%, 80%)";
 		context.fillRect(0, 0, 1920, 1280);
 	}));
 	objects.set("input", new Drawable(() => {
-		context.fillStyle = inputError ? "red" : "black";
+		context.fillStyle = inputError ? "red" : strokeColor;
 		context.fontSize = 8;
 		context.textAlign = "left";
 		context.fillText(input, 40, 1240);
