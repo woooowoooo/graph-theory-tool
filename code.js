@@ -2,14 +2,12 @@ const canvas = document.getElementsByTagName("canvas")[0];
 canvas.width = 1920;
 canvas.height = 1280;
 const context = canvas.getContext("2d");
-context.imageSmoothingEnabled = false;
 // Variables
 const mouse = {
 	x: 0,
 	y: 0
 };
 const heldKeys = new Set();
-const images = {};
 const sounds = {};
 let paused = false;
 const objects = new Map();
@@ -158,19 +156,20 @@ class Button extends Drawable {
 }
 class TextButton extends Button {
 	constructor (x, y, text, callback, width) {
-		const buttonWidth = width ? width - 160 : Math.ceil(context.measureText(text).width / 32) * 32;
+		const middleWidth = width - 128;
 		const hitbox = new Path2D();
-		hitbox.rect(x - buttonWidth / 2 - 64, y, buttonWidth + 128, 128);
-		hitbox.rect(x - buttonWidth / 2 - 80, y + 16, buttonWidth + 160, 96);
+		hitbox.arc(x - middleWidth / 2, y, 64, Math.PI / 2, Math.PI * 3 / 2);
+		hitbox.arc(x + middleWidth / 2, y, 64, Math.PI * 3 / 2, Math.PI / 2);
 		hitbox.closePath();
 		function draw() {
+			context.fillStyle = "white";
+			context.fill(hitbox);
+			context.strokeStyle = "black";
+			context.lineWidth = 16;
+			context.stroke(hitbox);
 			context.fontSize = 8;
-			context.drawImage(images.buttonStart, x - buttonWidth / 2 - 80, y, 80, 128);
-			context.drawImage(images.buttonMiddle, x - buttonWidth / 2, y, buttonWidth, 128);
-			context.drawImage(images.buttonEnd, x + buttonWidth / 2, y, 80, 128);
-			context.textAlign = "center";
 			context.fillStyle = "black";
-			context.fillText(text, x, y + 92);
+			context.fillText(text, x, y + 28);
 		}
 		super(hitbox, draw, callback);
 	}
@@ -209,6 +208,7 @@ class Slider extends Drawable {
 			context.fillText(start, x - width / 2 - 40, y + 16);
 			context.textAlign = "left";
 			context.fillText(end, x + width / 2 + 40, y + 16);
+			context.textAlign = "center";
 		}
 		super(draw);
 		// Add sliding
@@ -316,7 +316,6 @@ class Edge {
 }
 // Loading assets
 async function loadResources() {
-	const imageNames = ["buttonStart", "buttonMiddle", "buttonEnd"];
 	const soundNames = [];
 	const promises = [];
 	const initialize = function (cache, id, path, type, eventType) {
@@ -326,12 +325,8 @@ async function loadResources() {
 			cache[id].addEventListener(eventType, resolve, {once: true});
 		}));
 	};
-	for (const name of imageNames) {
-		initialize(images, name, `images/${name}.png`, "img", "load");
-	}
 	for (const name of soundNames) {
 		initialize(sounds, name, `sounds/${name}.mp3`, "audio", "canplaythrough");
-		sounds[name].muted = settings.muted;
 		sounds[name].volume = settings.volume / 100;
 	}
 	return Promise.all(promises);
@@ -347,7 +342,7 @@ context.fontSize = 8;
 context.fillText("If this doesn't go away,", 960, 800);
 context.fillText("refresh the page.", 960, 960);
 await loadResources();
-console.log("Resources loaded.", images, sounds);
+console.log("Sounds loaded.", sounds);
 onMain();
 // State transitions
 function onMain() {
@@ -378,7 +373,7 @@ function onMain() {
 			vertex.draw();
 		}
 	}));
-	objects.set("settings", new TextButton(1640, 1120, "Settings", onSettings, 480));
+	objects.set("settings", new TextButton(1640, 1180, "Settings", onSettings, 480));
 };
 function onSettings() {
 	for (let listener of listeners) {
@@ -396,8 +391,9 @@ function onSettings() {
 		context.fillText("Placeholder 1:", 600, 440 + 28);
 		context.fillText("Placeholder 2:", 600, 600 + 28);
 		context.fillText("Volume:", 600, 760 + 28);
+		context.textAlign = "center";
 	}));
-	objects.set("labels", new TextToggle(1200, 280 - 20 + 28 - 92, "labels"));
+	objects.set("labels", new TextToggle(1200, 280 - 20, "labels"));
 	objects.set("place1", new Slider(1200, 440, 960, "place1", 0, 5));
 	objects.set("place2", new Slider(1200, 600, 960, "place2", 0, 20));
 	objects.set("volume", new Slider(1200, 760, 960, "volume", 0, 100, 10, false, () => {
@@ -405,5 +401,5 @@ function onSettings() {
 			sound.volume = settings.volume / 100;
 		}
 	}));
-	objects.set("return", new TextButton(960, 1000, "Return", onMain, 640));
+	objects.set("return", new TextButton(960, 1040, "Return", onMain, 640));
 };
