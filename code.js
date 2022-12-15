@@ -71,7 +71,7 @@ canvas.addEventListener("click", getMousePosition);
 listeners.push(["mousedown", e => {
 	getMousePosition(e);
 	if (e.button === 0) {
-		for (const vertex of vertices) {
+		for (const vertex of vertices.slice().reverse()) {
 			if (context.isPointInPath(vertex.hitbox, mouse.x, mouse.y)) {
 				if (e.shiftKey) {
 					vertex.remove();
@@ -82,7 +82,7 @@ listeners.push(["mousedown", e => {
 				return;
 			}
 		}
-		for (const edge of edges) {
+		for (const edge of edges) { // No one can tell which edge is on top anyways
 			if (context.isPointInStroke(edge.hitbox, mouse.x, mouse.y)) {
 				if (e.shiftKey) {
 					edge.remove();
