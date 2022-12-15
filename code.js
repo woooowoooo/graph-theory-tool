@@ -71,20 +71,29 @@ canvas.addEventListener("click", getMousePosition);
 listeners.push(["mousedown", e => {
 	getMousePosition(e);
 	if (e.button === 0) {
-		let onVertex = false;
 		for (const vertex of vertices) {
 			if (context.isPointInPath(vertex.hitbox, mouse.x, mouse.y)) {
-				onVertex = true;
 				if (e.shiftKey) {
 					vertex.remove();
 				} else {
 					vertex.selected = !vertex.selected;
 				}
+				render();
+				return;
 			}
 		}
-		if (!onVertex) {
-			vertices.push(new Vertex(mouse.x, mouse.y));
+		for (const edge of edges) {
+			if (context.isPointInStroke(edge.hitbox, mouse.x, mouse.y)) {
+				if (e.shiftKey) {
+					edge.remove();
+				} else {
+					edge.selected = !edge.selected;
+				}
+				render();
+				return;
+			}
 		}
+		vertices.push(new Vertex(mouse.x, mouse.y));
 	} else if (e.button === 2) {
 		// TODO
 	}
@@ -292,13 +301,14 @@ class Edge {
 		this.vertex2 = vertex2;
 		this.selected = false;
 		this.color = 0;
+		const line = new Path2D();
+		line.moveTo(vertex1.center.x, vertex1.center.y);
+		line.lineTo(vertex2.center.x, vertex2.center.y);
+		this.hitbox = line;
 		this.draw = function () {
-			context.lineWidth = 12;
-			context.strokeStyle = COLORS[this.color];
-			context.beginPath();
-			context.moveTo(vertex1.center.x, vertex1.center.y);
-			context.lineTo(vertex2.center.x, vertex2.center.y);
-			context.stroke();
+			context.strokeStyle = this.selected ? "red" : COLORS[this.color];
+			context.lineWidth = this.selected ? 24 : 12;
+			context.stroke(line);
 		};
 		this.draw();
 	}
