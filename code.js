@@ -92,22 +92,30 @@ listeners.push(["mousedown", e => {
 }]);
 // Keyboard events
 let input = "";
+let inputError = false;
 let operatorsMatch = /([c+-])/;
 function handle(key) {
 	if (key.key === "Escape") {
 		heldKeys.clear();
 		onSettings();
 	} else if (key.key.match(/^[\dc+-]$/)) { // TODO: Use operatorsMatch here somehow
+		inputError = false;
 		input += key.key;
+	} else if (key.key === "Backspace") {
+		inputError = false;
+		input = input.slice(0, -1);
 	} else if (key.key === "Enter") {
-		if (input !== "") {
+		try {
 			let [token1, operator, token2] = input.split(operatorsMatch);
 			let [vertices1, vertices2] = [token1.split(" "), token2.split(" ")];
 			if (operator === "-") {
 				edges.push(new Edge(vertices[vertices1[0] - 1], vertices[vertices2[0] - 1]));
 			}
+			input = "";
+		} catch (e) {
+			console.error(e);
+			inputError = true;
 		}
-		input = "";
 	}
 	render();
 }
@@ -346,7 +354,7 @@ function onMain() {
 		context.fillRect(0, 0, 1920, 1280);
 	}));
 	objects.set("input", new Drawable(() => {
-		context.fillStyle = "black";
+		context.fillStyle = inputError ? "red" : "black";
 		context.fontSize = 8;
 		context.textAlign = "left";
 		context.fillText(input, 40, 1240);
