@@ -359,10 +359,6 @@ onMain();
 // State transitions
 function onMain() {
 	clear();
-	for (let listener of listeners) {
-		let target = listener[0].includes("key") ? window : canvas;
-		target.addEventListener(listener[0], listener[1]);
-	}
 	paused = false;
 	objects.set("background", new Drawable(() => {
 		context.fillStyle = darkMode ? "hsl(30, 10%, 15%)" : "hsl(30, 10%, 80%)";
@@ -386,10 +382,15 @@ function onMain() {
 		}
 	}));
 	objects.set("settings", new TextButton(1640, 1180, "Settings", onSettings, 480));
+	for (let listener of listeners) {
+		let target = listener[0].includes("key") ? window : canvas;
+		target.addEventListener(listener[0], listener[1]);
+	}
 };
 function onSettings() {
 	for (let listener of listeners) {
-		canvas.removeEventListener(listener[0], listener[1]);
+		let target = listener[0].includes("key") ? window : canvas;
+		target.removeEventListener(listener[0], listener[1]);
 	}
 	paused = true;
 	objects.set("overlay", new Drawable(() => {
