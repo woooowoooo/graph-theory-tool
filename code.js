@@ -87,6 +87,7 @@ listeners.push(["mousedown", e => {
 					vertex.remove();
 				} else {
 					vertex.selected = !vertex.selected;
+					vertex.selected ? selected.add(vertex) : selected.delete(vertex);
 				}
 				render();
 				return;
@@ -98,6 +99,7 @@ listeners.push(["mousedown", e => {
 					edge.remove();
 				} else {
 					edge.selected = !edge.selected;
+					edge.selected ? selected.add(edge) : selected.delete(edge);
 				}
 				render();
 				return;
@@ -117,7 +119,7 @@ function handle(key) {
 	if (key.key === "Escape") {
 		heldKeys.clear();
 		onSettings();
-	} else if (key.key.match(/^[\dc+-]$/)) { // TODO: Use operatorsMatch here somehow
+	} else if (key.key.match(/^[\d c+-]$/)) { // TODO: Use operatorsMatch here somehow
 		inputError = false;
 		input += key.key;
 	} else if (key.key === "Backspace") {
@@ -125,12 +127,22 @@ function handle(key) {
 		input = input.slice(0, -1);
 	} else if (key.key === "Enter") {
 		try {
-			let [token1, operator, token2] = input.split(operatorsMatch);
-			let [vertices1, vertices2] = [token1.split(" "), token2.split(" ")];
+			let [selectionToken, operator, modifier] = input.split(operatorsMatch);
+			let selection = selectionToken.split(" ");
+			if (selection.length === 1 && selection[0] === "") {
+				selection = Array.from(selected.values());
+			}
 			if (operator === "-") {
-				edges.push(new Edge(vertices[vertices1[0] - 1], vertices[vertices2[0] - 1]));
+				for (const index of selection) {
+					const vertex = vertices[index - 1];
+					edges.push(new Edge(vertex, vertices[modifier - 1]));
+				}
 			}
 			input = "";
+			for (const object of selected.values()) {
+				object.selected = false;
+			}
+			selected.clear();
 		} catch (e) {
 			console.error(e);
 			inputError = true;
@@ -264,6 +276,7 @@ class Slider extends Drawable {
 // Graph theory time
 const vertices = [];
 const edges = [];
+const selected = new Set();
 // Done with https://css.land/lch
 const COLORS = [
 	strokeColor,
