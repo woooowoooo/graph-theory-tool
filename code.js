@@ -137,6 +137,10 @@ function handle(key) {
 					const vertex = vertices[index - 1];
 					edges.push(new Edge(vertex, vertices[modifier - 1]));
 				}
+			} else if (operator === "c") {
+				for (const object of selected.values()) {
+					object.color = modifier;
+				}
 			}
 			input = "";
 			for (const object of selected.values()) {
