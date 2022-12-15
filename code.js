@@ -287,11 +287,9 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 		this.draw();
 	}
 	remove() {
-		edges.forEach(edge => {
-			if (edge.vertex1 === this || edge.vertex2 === this) {
-				edge.remove();
-			}
-		});
+		for (let edge of edges.filter(edge => edge.vertex1 === this || edge.vertex2 === this)) {
+			edge.remove();
+		}
 		vertices.splice(vertices.indexOf(this), 1);
 	}
 }
