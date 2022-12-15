@@ -135,8 +135,8 @@ function handle(key) {
 				// Add bare selection to selected
 				for (const index of selection) {
 					const vertex = vertices[index - 1];
-					vertex.selected = true;
-					selected.add(vertex);
+					vertex.selected = !vertex.selected;
+					vertex.selected ? selected.add(vertex) : selected.delete(vertex);
 				}
 			}
 			if (operator === "-") {
@@ -149,7 +149,7 @@ function handle(key) {
 					object.color = modifier;
 				}
 			}
-			if (operator !== "") {
+			if (operatorsMatch.test(input)) {
 				for (const object of selected.values()) {
 					object.selected = false;
 				}
