@@ -131,6 +131,13 @@ function handle(key) {
 			let selection = selectionToken.split(" ");
 			if (selection.length === 1 && selection[0] === "") {
 				selection = Array.from(selected.values());
+			} else if (!operatorsMatch.test(input)) {
+				// Add bare selection to selected
+				for (const index of selection) {
+					const vertex = vertices[index - 1];
+					vertex.selected = true;
+					selected.add(vertex);
+				}
 			}
 			if (operator === "-") {
 				for (const index of selection) {
@@ -142,11 +149,13 @@ function handle(key) {
 					object.color = modifier;
 				}
 			}
-			input = "";
-			for (const object of selected.values()) {
-				object.selected = false;
+			if (operator !== "") {
+				for (const object of selected.values()) {
+					object.selected = false;
+				}
+				selected.clear();
 			}
-			selected.clear();
+			input = "";
 		} catch (e) {
 			console.error(e);
 			inputError = true;
