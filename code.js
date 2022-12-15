@@ -16,7 +16,7 @@ const defaultSettings = {
 	volume: 100,
 	labels: true,
 	place1: 2,
-	place2: 10
+	thickness: 12
 };
 const settings = new Proxy(JSON.parse(localStorage.getItem("graphToolSettings")) ?? defaultSettings, {
 	get: function (_, property) {
@@ -276,7 +276,7 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 			context.fillStyle = this.selected ? "red" : "white";
 			context.fill(circle);
 			context.strokeStyle = COLORS[this.color];
-			context.lineWidth = 12;
+			context.lineWidth = settings.thickness;
 			context.stroke(circle);
 			context.fillStyle = "black";
 			if (settings.labels) {
@@ -305,7 +305,7 @@ class Edge {
 		this.hitbox = line;
 		this.draw = function () {
 			context.strokeStyle = this.selected ? "red" : COLORS[this.color];
-			context.lineWidth = this.selected ? 24 : 12;
+			context.lineWidth = this.selected ? 2 * settings.thickness : settings.thickness;
 			context.stroke(line);
 		};
 		this.draw();
@@ -389,13 +389,13 @@ function onSettings() {
 		context.textAlign = "right";
 		context.fillText("Labels:", 600, 280 - 20 + 28);
 		context.fillText("Placeholder 1:", 600, 440 + 28);
-		context.fillText("Placeholder 2:", 600, 600 + 28);
+		context.fillText("Line Thickness:", 600, 600 + 28);
 		context.fillText("Volume:", 600, 760 + 28);
 		context.textAlign = "center";
 	}));
 	objects.set("labels", new TextToggle(1200, 280 - 20, "labels"));
 	objects.set("place1", new Slider(1200, 440, 960, "place1", 0, 5));
-	objects.set("place2", new Slider(1200, 600, 960, "place2", 0, 20));
+	objects.set("thickness", new Slider(1200, 600, 960, "thickness", 1, 20));
 	objects.set("volume", new Slider(1200, 760, 960, "volume", 0, 100, 10, false, () => {
 		for (const sound of Object.values(sounds)) {
 			sound.volume = settings.volume / 100;
