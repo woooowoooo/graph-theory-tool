@@ -273,6 +273,26 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 		vertices.splice(vertices.indexOf(this), 1);
 	}
 }
+class Edge {
+	constructor (vertex1, vertex2) {
+		this.vertex1 = vertex1;
+		this.vertex2 = vertex2;
+		this.selected = false;
+		this.color = 0;
+		this.draw = function () {
+			context.lineWidth = 12;
+			context.strokeStyle = COLORS[this.color];
+			context.beginPath();
+			context.moveTo(vertex1.center.x, vertex1.center.y);
+			context.lineTo(vertex2.center.x, vertex2.center.y);
+			context.stroke();
+		};
+		this.draw();
+	}
+	remove() {
+		edges.splice(edges.indexOf(this), 1);
+	}
+}
 // Loading assets
 async function loadResources() {
 	const imageNames = ["buttonStart", "buttonMiddle", "buttonEnd"];
@@ -326,6 +346,11 @@ function onMain() {
 		context.textAlign = "left";
 		context.fillText(input, 40, 1240);
 		context.textAlign = "center";
+	}));
+	objects.set("edges", new Drawable(() => {
+		for (const edge of edges) {
+			edge.draw();
+		}
 	}));
 	objects.set("vertices", new Drawable(() => {
 		for (const vertex of vertices) {
