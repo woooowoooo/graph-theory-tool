@@ -74,8 +74,12 @@ listeners.push(["mousedown", e => {
 		let onVertex = false;
 		for (const vertex of vertices) {
 			if (context.isPointInPath(vertex.hitbox, mouse.x, mouse.y)) {
-				vertex.selected = !vertex.selected;
 				onVertex = true;
+				if (e.shiftKey) {
+					vertex.remove();
+				} else {
+					vertex.selected = !vertex.selected;
+				}
 			}
 		}
 		if (!onVertex) {
@@ -259,6 +263,14 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 			}
 		};
 		this.draw();
+	}
+	remove() {
+		edges.forEach(edge => {
+			if (edge.vertex1 === this || edge.vertex2 === this) {
+				edge.remove();
+			}
+		});
+		vertices.splice(vertices.indexOf(this), 1);
 	}
 }
 // Loading assets
