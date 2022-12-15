@@ -92,6 +92,25 @@ listeners.push(["mousedown", e => {
 }]);
 // Keyboard events
 let input = "";
+let operatorsMatch = /([c+-])/;
+function handle(key) {
+	if (key.key === "Escape") {
+		heldKeys.clear();
+		onSettings();
+	} else if (key.key.match(/^[\dc+-]$/)) { // TODO: Use operatorsMatch here somehow
+		input += key.key;
+	} else if (key.key === "Enter") {
+		if (input !== "") {
+			let [token1, operator, token2] = input.split(operatorsMatch);
+			let [vertices1, vertices2] = [token1.split(" "), token2.split(" ")];
+			if (operator === "-") {
+				edges.push(new Edge(vertices[vertices1[0] - 1], vertices[vertices2[0] - 1]));
+			}
+		}
+		input = "";
+	}
+	render();
+}
 listeners.push(["keydown", e => {
 	if (!heldKeys.has(e.key)) { // Prevent held key spam
 		heldKeys.add(e.key);
@@ -101,20 +120,6 @@ listeners.push(["keydown", e => {
 listeners.push(["keyup", e => {
 	heldKeys.delete(e.key);
 }]);
-function handle(key) {
-	if (key.key === "Escape") {
-		heldKeys.clear();
-		onSettings();
-	} else if (key.key.match(/^[0-9+-]$/)) {
-		input += key.key;
-	} else if (key.key === "Enter") {
-		if (input !== "") {
-			// TODO
-		}
-		input = "";
-	}
-	render();
-}
 // UI Elements
 class Drawable {
 	constructor (draw) {
