@@ -411,6 +411,14 @@ function onMain() {
 			vertex.draw();
 		}
 	}));
+	objects.set("info", new Drawable(() => {
+		context.fillStyle = strokeColor;
+		context.fontSize = 8;
+		context.textAlign = "right";
+		context.fillText(`Vertices: ${vertices.length}`, 1880, 80);
+		context.fillText(`Edges: ${edges.length}`, 1880, 160);
+		context.textAlign = "center";
+	}));
 	objects.set("settings", new TextButton(1640, 1180, "Settings", onSettings, 480));
 	for (let listener of listeners) {
 		let target = listener[0].includes("key") ? window : canvas;
