@@ -454,14 +454,14 @@ function onSettings() {
 	objects.set("text", new Drawable(() => {
 		context.fillStyle = "white";
 		context.textAlign = "right";
-		context.fillText("Labels:", 600, 280 - 20 + 28);
+		context.fillText("Labels:", 600, 260 + 28);
 		context.fillText("Directed:", 600, 440 + 28);
 		context.fillText("Line Thickness:", 600, 600 + 28);
 		context.fillText("Volume:", 600, 760 + 28);
 		context.textAlign = "center";
 	}));
-	objects.set("labels", new TextToggle(1200, 280 - 20, "labels"));
-	objects.set("directed", new TextToggle(1200, 440 - 20, "directed"));
+	objects.set("labels", new TextToggle(1200, 260, "labels"));
+	objects.set("directed", new TextToggle(1200, 440, "directed"));
 	objects.set("thickness", new Slider(1200, 600, 960, "thickness", 1, 20));
 	objects.set("volume", new Slider(1200, 760, 960, "volume", 0, 100, 10, false, () => {
 		for (const sound of Object.values(sounds)) {
