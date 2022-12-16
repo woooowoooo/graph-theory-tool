@@ -27,7 +27,7 @@ window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e =
 const defaultSettings = {
 	volume: 100,
 	labels: true,
-	place1: 2,
+	directed: false,
 	thickness: darkMode ? 8 : 12
 };
 const settings = new Proxy(JSON.parse(localStorage.getItem("graphToolSettings")) ?? defaultSettings, {
@@ -352,6 +352,10 @@ class Edge {
 			context.strokeStyle = this.selected ? "red" : COLORS[this.color];
 			context.lineWidth = this.selected ? 2 * settings.thickness : settings.thickness;
 			context.stroke(line);
+			if (settings.directed) {
+				context.fontSize = 6;
+				context.fillText(`${vertex1.index}→${vertex2.index}`, (vertex1.center.x + vertex2.center.x) / 2, (vertex1.center.y + vertex2.center.y) / 2);
+			}
 		};
 		this.draw();
 	}
@@ -451,13 +455,13 @@ function onSettings() {
 		context.fillStyle = "white";
 		context.textAlign = "right";
 		context.fillText("Labels:", 600, 280 - 20 + 28);
-		context.fillText("Placeholder 1:", 600, 440 + 28);
+		context.fillText("Directed:", 600, 440 + 28);
 		context.fillText("Line Thickness:", 600, 600 + 28);
 		context.fillText("Volume:", 600, 760 + 28);
 		context.textAlign = "center";
 	}));
 	objects.set("labels", new TextToggle(1200, 280 - 20, "labels"));
-	objects.set("place1", new Slider(1200, 440, 960, "place1", 0, 5));
+	objects.set("directed", new TextToggle(1200, 440 - 20, "directed"));
 	objects.set("thickness", new Slider(1200, 600, 960, "thickness", 1, 20));
 	objects.set("volume", new Slider(1200, 760, 960, "volume", 0, 100, 10, false, () => {
 		for (const sound of Object.values(sounds)) {
