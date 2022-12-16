@@ -307,6 +307,7 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 		this.index = vertices.length + 1; // TODO: Make this work with deletion
 		this.selected = false;
 		this.color = 0;
+		this.degree = 0;
 		const circle = new Path2D();
 		circle.arc(x, y, 50, 0, 2 * Math.PI);
 		this.hitbox = circle;
@@ -335,6 +336,8 @@ class Edge {
 	constructor (vertex1, vertex2) {
 		this.vertex1 = vertex1;
 		this.vertex2 = vertex2;
+		vertex1.degree++;
+		vertex2.degree++;
 		this.selected = false;
 		this.color = 0;
 		const line = new Path2D();
@@ -353,6 +356,8 @@ class Edge {
 		this.draw();
 	}
 	remove() {
+		this.vertex1.degree--;
+		this.vertex2.degree--;
 		edges.splice(edges.indexOf(this), 1);
 	}
 }
@@ -417,6 +422,13 @@ function onMain() {
 		context.textAlign = "right";
 		context.fillText(`Vertices: ${vertices.length}`, 1880, 80);
 		context.fillText(`Edges: ${edges.length}`, 1880, 160);
+		if (selected.size > 0) {
+			let degreeSum = 0;
+			for (const vertex of Array.from(selected.values()).filter(object => object instanceof Vertex)) {
+				degreeSum += vertex.degree;
+			}
+			context.fillText(`(Total) Degree: ${degreeSum}`, 1880, 280);
+		}
 		context.textAlign = "center";
 	}));
 	objects.set("settings", new TextButton(1640, 1180, "Settings", onSettings, 480));
