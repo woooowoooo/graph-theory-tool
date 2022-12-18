@@ -366,19 +366,19 @@ class Edge {
 	}
 }
 // Loading assets
-async function loadResources() {
+/* async function loadSounds() {
 	const soundNames = [];
 	const promises = [];
-	const initialize = function (cache, id, path, type, eventType) {
-		cache[id] = document.createElement(type);
-		cache[id].src = path;
+	const initialize = function (name) {
+		sounds[name] = document.createElement("audio");
+		sounds[name].src = `sounds/${name}.mp3`;
+		sounds[name].volume = settings.volume / 100;
 		promises.push(new Promise(resolve => {
-			cache[id].addEventListener(eventType, resolve, {once: true});
+			sounds[name].addEventListener("canplaythrough", resolve, {once: true});
 		}));
 	};
 	for (const name of soundNames) {
-		initialize(sounds, name, `sounds/${name}.mp3`, "audio", "canplaythrough");
-		sounds[name].volume = settings.volume / 100;
+		initialize(name);
 	}
 	return Promise.all(promises);
 }
@@ -392,8 +392,8 @@ context.fillText("LOADING", 960, 400);
 context.fontSize = 8;
 context.fillText("If this doesn't go away,", 960, 800);
 context.fillText("refresh the page.", 960, 960);
-await loadResources();
-console.log("Sounds loaded.", sounds);
+await loadSounds();
+console.log("Sounds loaded.", sounds); */
 onMain();
 // State transitions
 function onMain() {
