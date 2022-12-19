@@ -147,27 +147,33 @@ listeners.push(["keyup", e => {
 // Command processing
 function processCommand() {
 	let [selectionToken, operator, modifier] = input.split(operatorsMatch);
-	let selection = selectionToken.split(" ");
-	if (selection.length === 1 && selection[0] === "") {
+	// Get selection
+	let selectionIndices = selectionToken.split(" ");
+	let selection;
+	if (selectionIndices.length === 1 && selectionIndices[0] === "") {
+		// Use selected if no selection is given
 		selection = Array.from(selected.values());
-	} else if (!operatorsMatch.test(input)) {
-		// Add bare selection to selected
-		for (const index of selection) {
-			const vertex = vertices[index - 1];
-			vertex.selected = !vertex.selected;
-			vertex.selected ? selected.add(vertex) : selected.delete(vertex);
+	} else {
+		selection = selectionIndices.map(index => vertices[index - 1]);
+		// Add selection to selected if no operator is given
+		if (!operatorsMatch.test(input)) {
+			for (const vertex of selection) {
+				vertex.selected = !vertex.selected;
+				vertex.selected ? selected.add(vertex) : selected.delete(vertex);
+			}
 		}
 	}
+	// Do command
 	if (operator === "-") {
-		for (const index of selection) {
-			const vertex = vertices[index - 1];
+		for (const vertex of selection.filter(object => object instanceof Vertex)) {
 			edges.push(new Edge(vertex, vertices[modifier - 1]));
 		}
 	} else if (operator === "c") {
-		for (const object of selected.values()) {
+		for (const object of selection.values()) {
 			object.color = modifier;
 		}
 	}
+	// Deselect everything
 	if (operatorsMatch.test(input)) {
 		for (const object of selected.values()) {
 			object.selected = false;
