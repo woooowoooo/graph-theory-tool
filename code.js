@@ -127,35 +127,7 @@ function handle(key) {
 		input = input.slice(0, -1);
 	} else if (key.key === "Enter") {
 		try {
-			let [selectionToken, operator, modifier] = input.split(operatorsMatch);
-			let selection = selectionToken.split(" ");
-			if (selection.length === 1 && selection[0] === "") {
-				selection = Array.from(selected.values());
-			} else if (!operatorsMatch.test(input)) {
-				// Add bare selection to selected
-				for (const index of selection) {
-					const vertex = vertices[index - 1];
-					vertex.selected = !vertex.selected;
-					vertex.selected ? selected.add(vertex) : selected.delete(vertex);
-				}
-			}
-			if (operator === "-") {
-				for (const index of selection) {
-					const vertex = vertices[index - 1];
-					edges.push(new Edge(vertex, vertices[modifier - 1]));
-				}
-			} else if (operator === "c") {
-				for (const object of selected.values()) {
-					object.color = modifier;
-				}
-			}
-			if (operatorsMatch.test(input)) {
-				for (const object of selected.values()) {
-					object.selected = false;
-				}
-				selected.clear();
-			}
-			input = "";
+			processCommand();
 		} catch (e) {
 			console.error(e);
 			inputError = true;
@@ -172,6 +144,38 @@ listeners.push(["keydown", e => {
 listeners.push(["keyup", e => {
 	heldKeys.delete(e.key);
 }]);
+// Command processing
+function processCommand() {
+	let [selectionToken, operator, modifier] = input.split(operatorsMatch);
+	let selection = selectionToken.split(" ");
+	if (selection.length === 1 && selection[0] === "") {
+		selection = Array.from(selected.values());
+	} else if (!operatorsMatch.test(input)) {
+		// Add bare selection to selected
+		for (const index of selection) {
+			const vertex = vertices[index - 1];
+			vertex.selected = !vertex.selected;
+			vertex.selected ? selected.add(vertex) : selected.delete(vertex);
+		}
+	}
+	if (operator === "-") {
+		for (const index of selection) {
+			const vertex = vertices[index - 1];
+			edges.push(new Edge(vertex, vertices[modifier - 1]));
+		}
+	} else if (operator === "c") {
+		for (const object of selected.values()) {
+			object.color = modifier;
+		}
+	}
+	if (operatorsMatch.test(input)) {
+		for (const object of selected.values()) {
+			object.selected = false;
+		}
+		selected.clear();
+	}
+	input = "";
+}
 // UI Elements
 class Drawable {
 	constructor (draw) {
