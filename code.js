@@ -148,9 +148,9 @@ listeners.push(["keyup", e => {
 function processCommand() {
 	let [selectionToken, operator, modifier] = input.split(operatorsMatch);
 	// Get selection
-	let selectionIndices = selectionToken.split(" ");
+	let selectionIndices = selectionToken.split(" ").filter(index => index !== "");
 	let selection;
-	if (selectionIndices.length === 1 && selectionIndices[0] === "") {
+	if (selectionIndices.length === 0) {
 		// Use selected if no selection is given
 		selection = Array.from(selected.values());
 	} else {
