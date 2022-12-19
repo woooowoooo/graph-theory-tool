@@ -13,6 +13,7 @@ Selections are done with vertex ids separated by spaces.
 
 Operators:
 - `c` to color with colors numbered `[option]`
+- `d` to delete
 - `-` to join vertices
 
 If there is no selection, the operator applies on all selected objects.
@@ -22,6 +23,7 @@ If there is no operator, the selection is selected.
 `1 2 3` to select vertices 1, 2, and 3
 `c5` to color the selected vertices and edges with color 5 (cyan)
 `2 4-3` to join vertices 2 and 4 to vertex 3
+`12d` to delete vertex 12
 
 ## Colors
 Defined from 1 to 7 as wooootris colors.

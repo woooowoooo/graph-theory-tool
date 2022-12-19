@@ -114,12 +114,12 @@ listeners.push(["mousedown", e => {
 // Keyboard events
 let input = "";
 let inputError = false;
-let operatorsMatch = /([c+-])/;
+let operatorsMatch = /([cd+-])/;
 function handle(key) {
 	if (key.key === "Escape") {
 		heldKeys.clear();
 		onSettings();
-	} else if (key.key.match(/^[\d c+-]$/)) { // TODO: Use operatorsMatch here somehow
+	} else if (key.key.match(/^[\d cd+-]$/)) { // TODO: Use operatorsMatch here somehow
 		inputError = false;
 		input += key.key;
 	} else if (key.key === "Backspace") {
@@ -171,6 +171,10 @@ function processCommand() {
 	} else if (operator === "c") {
 		for (const object of selection.values()) {
 			object.color = modifier;
+		}
+	} else if (operator === "d") {
+		for (const object of selection.values()) {
+			object.remove();
 		}
 	}
 	// Deselect everything
