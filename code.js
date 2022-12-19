@@ -93,7 +93,7 @@ listeners.push(["mousedown", e => {
 				return;
 			}
 		}
-		for (const edge of edges) { // No one can tell which edge is on top anyways
+		for (const edge of edges.slice().reverse()) {
 			if (context.isPointInStroke(edge.hitbox, mouse.x, mouse.y)) {
 				if (e.shiftKey) {
 					edge.remove();
