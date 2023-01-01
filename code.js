@@ -26,7 +26,8 @@ window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e =
 // Settings
 const defaultSettings = {
 	volume: 100,
-	labels: true,
+	vertexLabels: true,
+	edgeLabels: false,
 	directed: false,
 	thickness: darkMode ? 8 : 12
 };
@@ -232,7 +233,7 @@ class TextToggle extends TextButton {
 			objects.set(settingName, new TextToggle(x, y, settingName));
 			render();
 		}
-		super(x, y, settings[settingName], callback, 480);
+		super(x, y, settings[settingName], callback, 400);
 	}
 }
 class Slider extends Drawable {
@@ -332,7 +333,7 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 			context.lineWidth = settings.thickness;
 			context.stroke(circle);
 			context.fillStyle = strokeColor;
-			if (settings.labels) {
+			if (settings.vertexLabels) {
 				context.fontSize = 6;
 				context.fillText(this.index, x, y + 20);
 			}
@@ -366,9 +367,12 @@ class Edge {
 			context.strokeStyle = this.selected ? "red" : COLORS[this.color];
 			context.lineWidth = this.selected ? 2 * settings.thickness : settings.thickness;
 			context.stroke(line);
-			if (settings.directed) {
+			if (settings.edgeLabels) {
 				context.fontSize = 6;
-				context.fillText(`${vertex1.index}→${vertex2.index}`, (vertex1.center.x + vertex2.center.x) / 2, (vertex1.center.y + vertex2.center.y) / 2);
+				let symbol = settings.directed ? "→" : "–";
+				let first = settings.directed ? vertex1.index : Math.min(vertex1.index, vertex2.index);
+				let second = settings.directed ? vertex2.index : Math.max(vertex1.index, vertex2.index);
+				context.fillText(first + symbol + second, (vertex1.center.x + vertex2.center.x) / 2, (vertex1.center.y + vertex2.center.y) / 2);
 			}
 		};
 		this.draw();
@@ -467,15 +471,17 @@ function onSettings() {
 	}));
 	objects.set("text", new Drawable(() => {
 		context.fillStyle = "white";
+		context.fillText("Vertex Labels:", 360, 240);
+		context.fillText("Edge Labels:", 960, 240);
+		context.fillText("Directed Edges:", 1560, 240);
 		context.textAlign = "right";
-		context.fillText("Labels:", 600, 260 + 28);
-		context.fillText("Directed:", 600, 440 + 28);
 		context.fillText("Line Thickness:", 600, 600 + 28);
 		context.fillText("Volume:", 600, 760 + 28);
 		context.textAlign = "center";
 	}));
-	objects.set("labels", new TextToggle(1200, 260, "labels"));
-	objects.set("directed", new TextToggle(1200, 440, "directed"));
+	objects.set("vertexLabels", new TextToggle(360, 360, "vertexLabels"));
+	objects.set("edgeLabels", new TextToggle(960, 360, "edgeLabels"));
+	objects.set("directed", new TextToggle(1560, 360, "directed"));
 	objects.set("thickness", new Slider(1200, 600, 960, "thickness", 1, 20));
 	objects.set("volume", new Slider(1200, 760, 960, "volume", 0, 100, 10, false, () => {
 		for (const sound of Object.values(sounds)) {
