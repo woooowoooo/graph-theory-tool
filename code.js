@@ -29,7 +29,7 @@ const defaultSettings = {
 	vertexLabels: true,
 	edgeLabels: false,
 	directed: false,
-	thickness: darkMode ? 8 : 12
+	thickness: darkMode ? 8 : 10
 };
 const settings = new Proxy(JSON.parse(localStorage.getItem("graphToolSettings")) ?? defaultSettings, {
 	get: function (_, property) {
