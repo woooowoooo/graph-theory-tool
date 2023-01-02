@@ -82,31 +82,21 @@ canvas.addEventListener("click", getMousePosition);
 listeners.push(["mousedown", e => {
 	getMousePosition(e);
 	if (e.button === 0) {
-		for (const vertex of vertices.slice().reverse()) {
-			if (context.isPointInPath(vertex.hitbox, mouse.x, mouse.y)) {
+		const graphObjects = [...edges, ...vertices.values()].reverse();
+		for (const object of graphObjects) {
+			if (context[object instanceof Vertex ? "isPointInPath" : "isPointInStroke"](object.hitbox, mouse.x, mouse.y)) {
 				if (e.shiftKey) {
-					vertex.remove();
+					object.remove();
 				} else {
-					vertex.selected = !vertex.selected;
-					vertex.selected ? selected.add(vertex) : selected.delete(vertex);
+					object.selected = !object.selected;
+					object.selected ? selected.add(object) : selected.delete(object);
 				}
 				render();
 				return;
 			}
 		}
-		for (const edge of edges.slice().reverse()) {
-			if (context.isPointInStroke(edge.hitbox, mouse.x, mouse.y)) {
-				if (e.shiftKey) {
-					edge.remove();
-				} else {
-					edge.selected = !edge.selected;
-					edge.selected ? selected.add(edge) : selected.delete(edge);
-				}
-				render();
-				return;
-			}
-		}
-		vertices.push(new Vertex(mouse.x, mouse.y));
+		let newVertex = new Vertex(mouse.x, mouse.y);
+		vertices.set(newVertex.index, newVertex);
 	} else if (e.button === 2) {
 		// TODO
 	}
@@ -155,7 +145,7 @@ function processCommand() {
 		// Use selected if no selection is given
 		selection = Array.from(selected.values());
 	} else {
-		selection = selectionIndices.map(index => vertices[index - 1]);
+		selection = selectionIndices.map(index => vertices.get(index));
 		// Add selection to selected if no operator is given
 		if (!operatorsMatch.test(input)) {
 			for (const vertex of selection) {
@@ -167,7 +157,7 @@ function processCommand() {
 	// Do command
 	if (operator === "-") {
 		for (const vertex of selection.filter(object => object instanceof Vertex)) {
-			edges.push(new Edge(vertex, vertices[modifier - 1]));
+			edges.push(new Edge(vertex, vertices.get(modifier)));
 		}
 	} else if (operator === "c") {
 		for (const object of selection.values()) {
@@ -302,7 +292,7 @@ class Slider extends Drawable {
 	}
 }
 // Graph theory time
-const vertices = [];
+const vertices = new Map();
 const edges = [];
 const selected = new Set();
 // Done with https://css.land/lch
@@ -319,7 +309,14 @@ const COLORS = [
 class Vertex { // Would extend Drawable if "this" could be used before "super"
 	constructor (x, y) {
 		this.center = {x, y};
-		this.index = vertices.length + 1; // TODO: Make this work with deletion
+		let earliestEmptyIndex = vertices.size + 1;
+		for (let i = 1; i < vertices.size; i++) {
+			if (!vertices.has(i.toString())) {
+				earliestEmptyIndex = i;
+				break;
+			}
+		}
+		this.index = earliestEmptyIndex.toString();
 		this.selected = false;
 		this.color = 0;
 		this.degree = 0;
@@ -344,7 +341,7 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 		for (let edge of edges.filter(edge => edge.vertex1 === this || edge.vertex2 === this)) {
 			edge.remove();
 		}
-		vertices.splice(vertices.indexOf(this), 1);
+		vertices.delete(this.index);
 	}
 }
 class Edge {
@@ -434,7 +431,7 @@ function onMain() {
 		}
 	}));
 	objects.set("vertices", new Drawable(() => {
-		for (const vertex of vertices) {
+		for (const vertex of vertices.values()) {
 			vertex.draw();
 		}
 	}));
@@ -442,7 +439,7 @@ function onMain() {
 		context.fillStyle = strokeColor;
 		context.fontSize = 8;
 		context.textAlign = "right";
-		context.fillText(`Vertices: ${vertices.length}`, 1880, 80);
+		context.fillText(`Vertices: ${vertices.size}`, 1880, 80);
 		context.fillText(`Edges: ${edges.length}`, 1880, 160);
 		if (selected.size > 0) {
 			let degreeSum = 0;
