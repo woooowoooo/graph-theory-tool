@@ -310,7 +310,7 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 	constructor (x, y) {
 		this.center = {x, y};
 		let earliestEmptyIndex = vertices.size + 1;
-		for (let i = 1; i < vertices.size; i++) {
+		for (let i = 1; i <= vertices.size; i++) {
 			if (!vertices.has(i.toString())) {
 				earliestEmptyIndex = i;
 				break;
