@@ -33,9 +33,9 @@ If there is no operator, the selection is selected.
 > Also, you must provide a short (3 to 5 page) narrative of your application’s features and how you implemented your routines.
 ## Structure
 ### Vertices
-Vertices are stored in the `vertices` array. Each vertex is an object with the following properties:
+Vertices are stored in key-value pairs in the `vertices` Map, where the key is the vertex label and the value is the vertex object. Each vertex is an object with the following properties:
 - `center`: The center of the vertex, an object with `x` and `y` properties.
-- `index`: The index of the vertex in the `vertices` array at the time of creation. It is not unique, but that is only because I haven't figured out how to make it so. It does not always correspond to the current index of the vertex in the array.
+- `label`: The label of the vertex in the `vertices` Map. It's value is the first integer that is not already a key in `vertices`.
 - `color`: The color of the vertex, an integer from 0 to 7.
 - `selected`: Whether the vertex is selected.
 - `degree`: A last-minute addition whose sole purpose is to allow for the display of vertex degree.
@@ -43,8 +43,8 @@ Vertices are stored in the `vertices` array. Each vertex is an object with the f
 
 ### Edges
 Edges are stored in the `edges` array. Each edge is an object with the following properties:
-- `vertex1`: The index of the first vertex in the `vertices` array.
-- `vertex2`: The index of the second vertex in the `vertices` array.
+- `vertex1`: The label of the first vertex in the `vertices` Map.
+- `vertex2`: The label of the second vertex in the `vertices` Map.
 - `color`: The color of the edge, an integer from 0 to 7.
 - `selected`: Whether the edge is selected.
 - `hitbox`: The hitbox of the edge, a 2D path that is a line from the center of the first vertex to the center of the second vertex.
@@ -85,4 +85,4 @@ The keyboard input is handled by auxiliary listeners on `keydown` and `keyup` to
 
 All `handle` currently does is facilitate inputting a command, later processed with `processCommand`, by adding some quality-of-life features, i.e. allowing for backspace, filtering input to only relevant keys (digits, space, and operators) using a regular expression, and not breaking on and showing mistakes.
 
-`processCommand`, which was still part of `handle` as of the time of presentation, splits a command string by an occurrence of an operator into three sections following the `[selection][operator][option]` structure described under [Keyboard](#Keyboard). It then splits the selection string by spaces and converts the resulting array of vertex indices into (references to) the vertices themselves. There is currently no way to select edges through typing a command. If there is no selection, `processCommand` falls back on the currently selected vertices *and edges*. It then does whatever the command says to do, using the modifier if needed. If there is no operator, `processCommand` toggles the selection states of the selected vertices and edges. Afterwards, if there has been no error yet, `processCommand` clears the selected objects and the command input.
+`processCommand`, which was still part of `handle` as of the time of presentation, splits a command string by an occurrence of an operator into three sections following the `[selection][operator][option]` structure described under [Keyboard](#Keyboard). It then splits the selection string by spaces and converts the resulting array of vertex labels into (references to) the vertices themselves. There is currently no way to select edges through typing a command. If there is no selection, `processCommand` falls back on the currently selected vertices *and edges*. It then does whatever the command says to do, using the modifier if needed. If there is no operator, `processCommand` toggles the selection states of the selected vertices and edges. Afterwards, if there has been no error yet, `processCommand` clears the selected objects and the command input.

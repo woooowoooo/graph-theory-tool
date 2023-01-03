@@ -96,7 +96,7 @@ listeners.push(["mousedown", e => {
 			}
 		}
 		let newVertex = new Vertex(mouse.x, mouse.y);
-		vertices.set(newVertex.index, newVertex);
+		vertices.set(newVertex.label, newVertex);
 	} else if (e.button === 2) {
 		// TODO
 	}
@@ -139,13 +139,13 @@ listeners.push(["keyup", e => {
 function processCommand() {
 	let [selectionToken, operator, modifier] = input.split(operatorsMatch);
 	// Get selection
-	let selectionIndices = selectionToken.split(" ").filter(index => index !== "");
+	let selectionLabels = selectionToken.split(" ").filter(label => label !== "");
 	let selection;
-	if (selectionIndices.length === 0) {
+	if (selectionLabels.length === 0) {
 		// Use selected if no selection is given
 		selection = Array.from(selected.values());
 	} else {
-		selection = selectionIndices.map(index => vertices.get(index));
+		selection = selectionLabels.map(label => vertices.get(label));
 		// Add selection to selected if no operator is given
 		if (!operatorsMatch.test(input)) {
 			for (const vertex of selection) {
@@ -316,7 +316,7 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 				break;
 			}
 		}
-		this.index = earliestEmptyIndex.toString();
+		this.label = earliestEmptyIndex.toString();
 		this.selected = false;
 		this.color = 0;
 		this.degree = 0;
@@ -332,7 +332,7 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 			context.fillStyle = strokeColor;
 			if (settings.vertexLabels) {
 				context.fontSize = 6;
-				context.fillText(this.index, x, y + 20);
+				context.fillText(this.label, x, y + 20);
 			}
 		};
 		this.draw();
@@ -341,7 +341,7 @@ class Vertex { // Would extend Drawable if "this" could be used before "super"
 		for (let edge of edges.filter(edge => edge.vertex1 === this || edge.vertex2 === this)) {
 			edge.remove();
 		}
-		vertices.delete(this.index);
+		vertices.delete(this.label);
 	}
 }
 class Edge {
@@ -367,8 +367,8 @@ class Edge {
 			if (settings.edgeLabels) {
 				context.fontSize = 6;
 				let symbol = settings.directed ? "→" : "–";
-				let first = settings.directed ? vertex1.index : Math.min(vertex1.index, vertex2.index);
-				let second = settings.directed ? vertex2.index : Math.max(vertex1.index, vertex2.index);
+				let first = settings.directed ? vertex1.label : Math.min(vertex1.label, vertex2.label);
+				let second = settings.directed ? vertex2.label : Math.max(vertex1.label, vertex2.label);
 				context.fillText(first + symbol + second, (vertex1.center.x + vertex2.center.x) / 2, (vertex1.center.y + vertex2.center.y) / 2);
 			}
 		};
